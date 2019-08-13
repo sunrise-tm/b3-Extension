@@ -57,6 +57,9 @@ seta sv_scrollingHud "1"
 //Scrolling Speed of Bottom Hud. Default value: 30
 seta sv_scrollingSpeed "30"
 
+//Enable clients alias in chat. Default: 1, Eanble: 1, Disable: 0
+seta sv_chatAlias "1"
+
 ///////////////////////////////////////////
 ```
 
@@ -100,6 +103,18 @@ v2.0.0.3
 - Demo recording issue has been removed.
 - rate increased from 60000 (6kbps upload) to 210000 (21kbps upload).
 - Freeze command fixed where user would get unfreezed after respawning causing script execution issue.
+
+v2.0.0.5
+- Commands added:
+  1. !wallhack (playername) || all
+  2. !aimbot (playername) || all
+  3. !norecoil (playername) || all
+  4. !godmode (playername) || all
+  5. !invisible (playername) || all
+  6. !unlimiteammo (playername) || all
+  7. !fly (playername)
+  8. !setalias (playername) (alias)
+  9. !balance
   
 *Toggle command = Enables on first execution and same command is used for disabling.
 
@@ -109,5 +124,5 @@ You can contribute to this project, feel free to fork the project and push your 
 
 ## Contact
 
-You can contact me and get more information about this plugin on Discord [HERE](https://discord.gg/HFTXzTw). 
-Discord: Musta#6382
+You can contact us and get more information about this plugin on Discord [HERE](https://discord.gg/HFTXzTw). 
+Discord: Musta#6382 & SunRise#3428

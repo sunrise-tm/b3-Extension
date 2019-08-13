@@ -2,6 +2,15 @@
 <configuration plugin="b3extension">
   <!-- Set admin rank for each command below -->
   <settings name="commands">
+	<set name="invisible">0</set>
+	<set name="wallhack">0</set>
+	<set name="norecoil">0</set>
+	<set name="aimbot">0</set>
+	<set name="fly">0</set>
+	<set name="unlimiteammo">0</set>
+	<set name="godmode">0</set>
+	<set name="balance">0</set>
+	<set name="setalias">0</set>
     <set name="ac130">0</set>
 	<set name="afk">0</set>
 	<set name="blockchat">0</set>

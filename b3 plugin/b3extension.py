@@ -14,6 +14,8 @@
 # 26.03.2019 - v0.9.6b
 # - IS Commands added: !gametype, !mode.
 # - Added <reason> field to !kill command + improved IS commands code
+# 14.08.2019 - v0.9.8b
+# - IS Commands Added: !wallhack, !aimbot, !norecoil, !godmode, !fly, !invisible, !unlimiteammo, !balance, !setalias
 
 __author__ = 'leliel'
 __version__ = '2.0.0.2'
@@ -58,6 +60,127 @@ class B3ExtensionPlugin(b3.plugin.Plugin):
             func = getattr(self, cmd)
             return func
         return None
+
+    def cmd_invisible(self, data, client, cmd=None):
+        '''
+        !invisible <playername> - Makes a player visible / invisible to others
+        '''
+
+        m = self._adminPlugin.parseUserCmd(data)
+        if not m:
+            self.console.write('set sv_b3Execute "!invisible %s"' % client.cid)
+        elif m[0] == 'all':
+            self.console.write('set sv_b3Execute "!invisible *all*"')
+        else:
+            sclient = self._adminPlugin.findClientPrompt(m[0], client)
+            self.console.write('set sv_b3Execute "!invisible %s"' % sclient.cid)
+
+    def cmd_wallhack(self, data, client, cmd=None):
+        '''
+        !wallhack <playername> - Toggles wallhack for a player
+        '''
+
+        m = self._adminPlugin.parseUserCmd(data)
+        if not m:
+            self.console.write('set sv_b3Execute "!wallhack %s"' % client.cid)
+        elif m[0] == 'all':
+            self.console.write('set sv_b3Execute "!wallhack *all*"')
+        else:
+            sclient = self._adminPlugin.findClientPrompt(m[0], client)
+            self.console.write('set sv_b3Execute "!wallhack %s"' % sclient.cid)
+
+    def cmd_norecoil(self, data, client, cmd=None):
+        '''
+        !norecoil <playername> - Toggles norecoil for a player
+        '''
+
+        m = self._adminPlugin.parseUserCmd(data)
+        if not m:
+            self.console.write('set sv_b3Execute "!norecoil %s"' % client.cid)
+        elif m[0] == 'all':
+            self.console.write('set sv_b3Execute "!norecoil *all*"')
+        else:
+            sclient = self._adminPlugin.findClientPrompt(m[0], client)
+            self.console.write('set sv_b3Execute "!norecoil %s"' % sclient.cid)
+
+    def cmd_aimbot(self, data, client, cmd=None):
+        '''
+        !aimbot <playername> - Toggles aimbot for a player
+        '''
+
+        m = self._adminPlugin.parseUserCmd(data)
+        if not m:
+            self.console.write('set sv_b3Execute "!aimbot %s"' % client.cid)
+        elif m[0] == 'all':
+            self.console.write('set sv_b3Execute "!aimbot *all*"')
+        else:
+            sclient = self._adminPlugin.findClientPrompt(m[0], client)
+            self.console.write('set sv_b3Execute "!aimbot %s"' % sclient.cid)
+
+    def cmd_fly(self, data, client, cmd=None):
+        '''
+        !fly <playername> - Toggles fly for a player
+        '''
+
+        m = self._adminPlugin.parseUserCmd(data)
+        if not m:
+            self.console.write('set sv_b3Execute "!fly %s"' % client.cid)
+        elif m[0] == 'all':
+            self.console.write('set sv_b3Execute "!fly *all*"')
+        else:
+            sclient = self._adminPlugin.findClientPrompt(m[0], client)
+            self.console.write('set sv_b3Execute "!fly %s"' % sclient.cid)
+
+    def cmd_unlimiteammo(self, data, client, cmd=None):
+        '''
+        !unlimiteammo <playername> - Toggles unlimite ammo for a player
+        '''
+
+        m = self._adminPlugin.parseUserCmd(data)
+        if not m:
+            self.console.write('set sv_b3Execute "!unlimiteammo %s"' % client.cid)
+        elif m[0] == 'all':
+            self.console.write('set sv_b3Execute "!unlimiteammo *all*"')
+        else:
+            sclient = self._adminPlugin.findClientPrompt(m[0], client)
+            self.console.write('set sv_b3Execute "!unlimiteammo %s"' % sclient.cid)
+
+    def cmd_godmode(self, data, client, cmd=None):
+        '''
+        !godmode <playername> - Toggles god mode for a player
+        '''
+
+        m = self._adminPlugin.parseUserCmd(data)
+        if not m:
+            self.console.write('set sv_b3Execute "!godmode %s"' % client.cid)
+        elif m[0] == 'all':
+            self.console.write('set sv_b3Execute "!godmode *all*"')
+        else:
+            sclient = self._adminPlugin.findClientPrompt(m[0], client)
+            self.console.write('set sv_b3Execute "!godmode %s"' % sclient.cid)
+
+    def cmd_balance(self, data, client, cmd=None):
+        '''
+        !balance <playername> - Balances teams
+        '''
+
+        self.console.write('set sv_b3Execute "!balance %s"' % client.cid)
+
+    def cmd_setalias(self, data, client, cmd=None):
+        '''
+        !setalias <playername> <alias> - Sets alias for a player
+        '''
+
+        m = self._adminPlugin.parseUserCmd(data)
+        if not m:
+            client.message('^1ERROR^0: ^7You must provide a player name and an alias.')
+        else:
+            sclient = self._adminPlugin.findClientPrompt(m[0], client)
+            if not m[1]:
+                self.console.write('set sv_b3Execute "!setalias %s <!DEF>"' % sclient.cid)
+            else:
+                self.console.write('set sv_b3Execute "!setalias %s %s"' % sclient.cid % m[1])
+
 
     def cmd_ac130(self, data, client, cmd=None):
         '''

@@ -16,6 +16,9 @@ namespace b3helper
         private static HudElem[] KillStreakHud = new HudElem[18];
         private static HudElem[] NoKillsHudElem = new HudElem[18];
 
+        //Dictionary for players with alias (custom name)
+        private static Dictionary<string, string> clientsAlias = new Dictionary<string, string>();
+
         //Hud for Information
         private HudElem top;
         private HudElem bottom;
@@ -25,12 +28,10 @@ namespace b3helper
         //Mode
         volatile string MapRotation = "";
 
-        //Unlimited ammo
-        public static bool activeunlimitedammo = false;
 
         public b3helper()
         {
-            Log.Info("b3Extension plugin by Musta#6382 and Pickle Rick#5230.");
+            Log.Info("b3Extension plugin by Musta#6382 and Pickle Rick#5230 and SunRise#3428.");
 
             //Making and Settings dvars if they are unused and have value.
             Call("setDvarifUninitialized", "sv_hideCommands", "1"); //Done
@@ -49,12 +50,16 @@ namespace b3helper
             Call("setDvarifUninitialized", "sv_scrollingSpeed", "30"); //Done
             Call("setDvarifUninitialized", "sv_scrollingHud", "1"); //Done
             Call("setDvarifUninitialized", "sv_b3Execute", "null"); //Done
+            Call("setDvarifUninitialized", "sv_chatAlias", "1"); //Done
 
             //Loading Server Dvars.
             ServerDvars();
 
             //HudElem For Information
             InformationHuds();
+
+            //Load players alias
+            LoadClientsAlias();
 
             //Assigning things.
             PlayerConnected += OnPlayerConnect;
@@ -97,12 +102,61 @@ namespace b3helper
             }
         }
 
+        public void LoadClientsAlias()
+        {
+            if (Call<int>("sv_chatAlias") == 1)
+            {
+                string[] lines = File.ReadAllLines("scripts\\ClientsAlias.txt");
+                foreach(var line in lines)
+                {
+                    if (line.StartsWith("//") || !line.Contains("=") || string.IsNullOrWhiteSpace(line)) continue;
+                    string[] args = line.Split('=');
+                    clientsAlias[args[0]] = string.Join("=", args.Skip(1));
+                }
+            }
+            if(Players.Count > 0)
+            {
+                foreach(var entity in Players)
+                {
+                    if (entity.HasField("PlayerUsingNorecoil") && entity.GetField<int>("PlayerUsingNorecoil") == 1)
+                        entity.Call("recoilscaleon", 0);
+                    if (entity.HasField("PlayerUsingWallhack") && entity.GetField<int>("PlayerUsingWallhack") == 1)
+                        entity.Call("thermalvisionfofoverlayon", true);
+                    if (entity.HasField("PlayerUsingAimbot") && entity.GetField<int>("PlayerUsingAimbot") == 1)
+                        Aimbot(entity);
+                }
+            }
+        }
 
+        public void SaveClientsAlias()
+        {
+            if (clientsAlias == null || clientsAlias.Count == 0) return;
+            File.WriteAllLines("scripts\\ClientsAlias.txt", new string[0]);
+            string[] toWrite = new string[255];
+            int index = 0;
+            foreach (var kvp in clientsAlias)
+            {
+                toWrite[index] = $"{kvp.Key.ToLower()}={kvp.Value}";
+                index++;
+            }
+            File.WriteAllLines("scripts\\ClientsAlias.txt", toWrite);
+        }
 
         public void OnPlayerConnect(Entity player)
         {
             //Reseting killstreak on player connect
             player.SetField("playerKillStreak", 0);
+
+            // Settings player fields 
+            player.SetField("PlayerUsingAimbot", 0);
+            player.SetField("PlayerUsingNorecoil", 0);
+            player.SetField("PlayerUsingWallhack", 0);
+            player.SetField("PlayerHasUnlimiteAmmo", 0);
+            player.SetField("PlayerIsInvisible", 0);
+            player.SetField("PlayerIsFlying", 0);
+            player.SetField("PlayerHasUnlimiteHealth", 0);
+            //player.SetField("AimbotWhiteList", ""); // I'll add it later
+
             //Client Performance dvar
             if (Call<int>("getDvarInt", "sv_clientDvars") != 0)
             {
@@ -143,6 +197,8 @@ namespace b3helper
                         player.Call("freezecontrols", true);
                     }
                 }
+                if (player.HasField("PlayerIsInvisible") && player.GetField<int>("PlayerIsInvisible") == 1)
+                    player.Call("hide");
             };
             player.OnNotify("giveloadout", delegate (Entity entity)
             {
@@ -154,6 +210,14 @@ namespace b3helper
                     }
                 }
             });
+            player.OnNotify("weapon_fired", new Action<Entity, Parameter>((entity, args) =>
+            {
+                if (entity.HasField("PlayerHasUnlimiteAmmo") && entity.GetField<int>("PlayerHasUnlimiteAmmo") == 1)
+                {
+                    entity.Call("setweaponammoclip", entity.CurrentWeapon, 999);
+                    entity.Call("giveMaxAmmo", entity.CurrentWeapon);
+                }
+            }));
         }
 
 
@@ -192,8 +256,15 @@ namespace b3helper
 
         }
 
+        public override void OnPlayerDamage(Entity player, Entity inflictor, Entity attacker, int damage, int dFlags, string mod, string weapon, Vector3 point, Vector3 dir, string hitLoc)
+        {
+            if (player == null) return;
+            if (player.HasField("PlayerHasUnlimiteHealth") && player.GetField<int>("PlayerHasUnlimiteHealth") == 1)
+                player.Health += damage;
+        }
 
-        public override EventEat OnSay2(Entity player, string name, string message)
+
+        public override EventEat OnSay3(Entity player, ChatType type, string name, ref string message)
         {
             try
             {
@@ -207,6 +278,15 @@ namespace b3helper
                 if (player.GetField<int>("muted") == 1)
                 {
                     return EventEat.EatGame;
+                }
+                if (clientsAlias.ContainsKey(player.HWID.ToLower()))
+                {
+                    if(clientsAlias.TryGetValue(player.HWID.ToLower(), out string alias))
+                    {
+                        string toSend = $"{(type == ChatType.Team ? "^7[^5Team^7]" : "")} {(!player.IsAlive ? "^7(dead)" : "")} {alias}^7: {message}";
+                        Utilities.RawSayAll(toSend);
+                        return EventEat.EatGame;
+                    }
                 }
 
             }
@@ -288,32 +368,12 @@ namespace b3helper
                 if (msg[0].StartsWith("!kill"))
                 {
                     Entity target = GetPlayer(msg[1]);
-                    target.Call("suicide");
+                    AfterDelay(50, () => target.Call("suicide"));
                 }
                 if (msg[0].StartsWith("!suicide"))
                 {
                     Entity player = GetPlayer(msg[1]);
                     player.Call("suicide");
-                }
-                if  (msg[0].StartsWith("!godmode"))
-                {
-                    Entity player = GetPlayer(msg[1]);
-                    if (!player.HasField("godmodeon"))
-                    {
-                        player.SetField("godmodeon", "0");
-                    }
-                    if (player.GetField<int>("godmodeon") == 1)
-                    {
-                        player.Health = 30;
-                        player.SetField("godmodeon", "0");
-                        Utilities.RawSayAll($"^1{player.Name} GodMode has been deactivated.");
-                    }
-                    else if (player.GetField<int>("godmodeon") == 0)
-                    {
-                        player.Health = -1;
-                        player.SetField("godmodeon", "1");
-                        Utilities.RawSayAll($"^1{player.Name} GodMode has been activated.");
-                    }
                 }
                 if (msg[0].StartsWith("!teleport"))
                 {
@@ -417,12 +477,272 @@ namespace b3helper
                             Utilities.RawSayAll($"^1{player.Name} team can't be changed because he is already spectator.");
                             break;
                     }
+                }
+                if (msg[0].StartsWith("!fly"))
+                {
+                    Entity player = GetPlayer(msg[1]);
+                    int status = player.GetField<int>("PlayerIsFlying");
+                    if (status == 0)
+                    {
+                        player.SetField("PlayerIsFlying", 1);
+                        player.Call("allowspectateteam", "freelook", true);
+                        player.SetField("sessionstate", "spectator");
+                        player.Call("setcontents", 0);
+                        Utilities.RawSayAll($"^1{player.Name} ^7has ^2started ^3flying.");
+                    }
+                    else
+                    {
+                        player.SetField("PlayerIsFlying", 0);
+                        player.Call("allowspectateteam", "freelook", false);
+                        player.SetField("sessionstate", "playing");
+                        player.Call("setcontents", 1000);
+                        Utilities.RawSayAll($"^1{player.Name} ^7has ^1stopped ^3flying.");
+                    }
+                }
+                if (msg[0].StartsWith("!invisible"))
+                {
+                    if (msg[1] != "*all*")
+                    {
+                        Entity player = GetPlayer(msg[1]);
+                        int status = player.GetField<int>("PlayerIsInvisible");
+                        player.SetField("PlayerIsInvisible", status == 1 ? 0 : 1);
+                        Utilities.RawSayAll($"^1{player.Name} ^7is now {(status == 1 ? "^1invisible" : "^2visible")} ^7to others.");
+                        if (status == 1)
+                            player.Call("show");
+                        else
+                            player.Call("hide");
+                    }
+                    else
+                    {
+                        bool status = BooleanFromString(msg[2]);
+                        foreach (var player in Players)
+                        {
+                            player.SetField("PlayerIsInvisible", status);
+                            if (status)
+                                player.Call("show");
+                            else
+                                player.Call("hide");
+                        }
+                        Utilities.RawSayAll($"^1everyone ^7are now {(status ? "^1invisible" : "^2visible")}");
+                    }
+                }
+                if (msg[0].StartsWith("!unlimiteammo"))
+                {
+                    if (msg[1] != "*all*")
+                    {
+                        Entity player = GetPlayer(msg[1]);
+                        int status = player.GetField<int>("PlayerHasUnlimiteAmmo");
+                        player.SetField("PlayerHasUnlimiteAmmo", status == 1 ? 0 : 1);
+                        Utilities.RawSayAll($"^3Unlimite Ammo ^7has been {(status == 1 ? "^1disabled" : "^2enabled")} ^7for ^1{player.Name}");
+                    }
+                    else
+                    {
+                        bool status = BooleanFromString(msg[2]);
+                        foreach (var player in Players)
+                            player.SetField("PlayerHasUnlimiteAmmo", status);
+                        Utilities.RawSayAll($"^3Unlimite Ammo ^7has been {(status ? "^1disabled" : "^2enabled")} ^7for ^3everyone");
+                    }
+                }
+                if (msg[0].StartsWith("!norecoil"))
+                {
+                    if (msg[1] != "*all*")
+                    {
+                        Entity player = GetPlayer(msg[1]);
+                        int status = player.GetField<int>("PlayerUsingNorecoil");
+                        player.SetField("PlayerUsingNorecoil", status == 1 ? 0 : 1);
+                        Utilities.RawSayAll($"^3NoRecoil ^7has been {(status == 1 ? "^1disabled" : "^2enabled")} ^7for ^1{player.Name}");
+                    }
+                    else
+                    {
+                        bool status = BooleanFromString(msg[2]);
+                        foreach (var player in Players)
+                            player.SetField("PlayerUsingNorecoil", status);
+                        Utilities.RawSayAll($"^3NoRecoil ^7has been {(status ? "^1disabled" : "^2enabled")} ^7for ^3everyone");
+                    }
+                }
+                if (msg[0].StartsWith("!wallhack"))
+                {
+                    if (msg[1] != "*all*")
+                    {
+                        Entity player = GetPlayer(msg[1]);
+                        int status = player.GetField<int>("PlayerUsingWallhack");
+                        player.SetField("PlayerUsingWallhack", status == 1 ? 0 : 1);
+                        Utilities.RawSayAll($"^3Wallhack ^7has been {(status == 1 ? "^1disabled" : "^2enabled")} ^7for ^1{player.Name}");
+                        if (status == 1)
+                            player.Call("thermalvisionfofoverlayoff", true);
+                        else
+                            player.Call("thermalvisionfofoverlayon", true);
+                    }
+                    else
+                    {
+                        bool status = BooleanFromString(msg[2]);
+                        foreach (var player in Players)
+                        {
+                            player.SetField("PlayerUsingAimbot", status);
+                            if (status)
+                                player.Call("thermalvisionfofoverlayoff", true);
+                            else
+                                player.Call("thermalvisionfofoverlayon", true);
+                        }
+                        Utilities.RawSayAll($"^3Wallhack ^7has been {(status ? "^1disabled" : "^2enabled")} ^7for ^3everyone");
+                    }
+                }
 
+                if (msg[0].StartsWith("!aimbot"))
+                {
+                    if (msg[1] != "*all*")
+                    {
+                        Entity player = GetPlayer(msg[1]);
+                        int status = player.GetField<int>("PlayerUsingAimbot");
+                        player.SetField("PlayerUsingAimbot", status == 1 ? 0 : 1);
+                        Utilities.RawSayAll($"^3Aimbot ^7has been {(status == 1 ? "^1disabled" : "^2enabled")} ^7for ^1{player.Name}");
+                    }
+                    else
+                    {
+                        bool status = BooleanFromString(msg[2]);
+                        foreach (var player in Players)
+                            player.SetField("PlayerUsingAimbot", status);
+                        Utilities.RawSayAll($"^3Aimbot ^7has been {(status ? "^1disabled" : "^2enabled")} ^7for ^3everyone");
+                    }
+                }
+                if (msg[0].StartsWith("!godmode"))
+                {
+                    if (msg[1] != "*all*")
+                    {
+                        Entity player = GetPlayer(msg[1]);
+                        int status = player.GetField<int>("PlayerHasUnlimiteHealth");
+                        player.SetField("PlayerHasUnlimiteHealth", status == 1 ? 0 : 1);
+                        Utilities.RawSayAll($"^3God Mode ^7has been {(status == 1 ? "^1disabled" : "^2enabled")} ^7for ^1{player.Name}");
+                    }
+                    else
+                    {
+                        bool status = BooleanFromString(msg[2]);
+                        foreach (var player in Players)
+                            player.SetField("PlayerHasUnlimiteHealth", status);
+                        Utilities.RawSayAll($"^3God Mode ^7has been {(status ? "^1disabled" : "^2enabled")} ^7for ^3everyone");
+                    }
+                }
+                if (msg[0].StartsWith("!balance"))
+                {
+                    if(Call<string>("getdvar", "g_gametype") == "infect" || Call<string>("getdvar", "g_gametype") == "inf")
+                    {
+                        Utilities.RawSayAll("^1Can't balance teams in infected games.");
+                        return;
+                    }
+                    BalanceTeams();
+                }
+                if (msg[0].StartsWith("!setalias"))
+                {
+                    Entity player = GetPlayer(msg[1]);
+                    if (msg.Length > 2 && msg[2] != "<!DEF>" && !string.IsNullOrWhiteSpace(msg[2]))
+                    {
+                        clientsAlias[player.HWID.ToLower()] = msg[2];
+                        Utilities.RawSayAll($"^1{player.Name}^7's alias has been set to {msg[2]}");
+                    }
+                    else
+                    {
+                        clientsAlias.Remove(player.HWID.ToLower());
+                        Utilities.RawSayAll($"^1{player.Name}^7's alias has been ^2reseted");
+                    }
+                    SaveClientsAlias();
                 }
             }
             catch (Exception e)
             {
                 Log.Error("Error in Command Processing. Error:" + e.Message + e.StackTrace);
+            }
+        }
+
+        public bool BooleanFromString(string str)
+        {
+            str = str.Trim().ToLower();
+            return str == "on" || str == "1" || str == "enable";
+        }
+
+        public void Aimbot(Entity player)
+        {
+            if (player == null || !player.IsAlive)
+                return;
+
+            Entity targetEnt = null;
+
+            foreach (Entity entity in Players)
+            {
+                if (!entity.IsAlive)
+                    continue;
+
+                if (player.EntRef == entity.EntRef)
+                    continue;
+
+                if (player.GetField<string>("sessionteam") == entity.GetField<string>("sessionteam"))
+                    if (Call<string>("getdvar", "g_gametype") != "dm")
+                        continue;
+
+                if (Call<int>("sighttracepassedint", player.Call<Vector3>("gettagorigin", "j_head"), entity.Call<Vector3>("gettagorigin", "j_head")) != 1
+                || entity.GetField<int>("PlayerHasUnlimiteHealth") == 1 || entity.GetField<int>("PlayerIsFlying") == 1)
+                    continue;
+
+                if (targetEnt != null)
+                {
+                    if (Call<bool>("closer",
+                        player.Call<Vector3>("gettagorigin", "j_head"), entity.Call<Vector3>("gettagorigin", "j_head"), targetEnt.Call<Vector3>("gettagorigin", "j_head")))
+                        targetEnt = entity;
+                }
+                else
+                {
+                    targetEnt = entity;
+                }
+            }
+
+            if (targetEnt != null && targetEnt.IsAlive)
+                player.Call("setplayerangles", Call<Vector3>("vectortoangles", (targetEnt.Call<Vector3>("gettagorigin", "j_mainroot") - player.Call<Vector3>("gettagorigin", "tag_weapon_right"))));
+        }
+
+        public void BalanceTeams()
+        {
+            List<Entity> axis = new List<Entity>();
+            List<Entity> allies = new List<Entity>();
+
+            foreach (var client in Players)
+            {
+                switch (client.GetField<string>("sessionteam"))
+                {
+                    case "allies":
+                        allies.Add(client);
+                        break;
+
+                    case "axis":
+                        axis.Add(client);
+                        break
+                            ;
+                    default:
+                        //nothing
+                        break;
+                }
+            }
+
+            int difference = (int)Math.Floor(Math.Abs(axis.Count - allies.Count) / 2d);
+
+            if (difference > 0)
+            {
+                IEnumerable<Entity> tobebalanced;
+
+                if (axis.Count > allies.Count)
+                    tobebalanced = axis.OrderBy(ent => ent.IsAlive ? 1 : 0).Take(difference).ToList();
+                else
+                    tobebalanced = allies.OrderBy(ent => ent.IsAlive ? 1 : 0).Take(difference).ToList();
+
+                foreach (var player in tobebalanced)
+                {
+                    string team = player.GetField<string>("sessionteam");
+                    if (team == "axis")
+                        ChangeTeam(player, "allies");
+                    else if (team == "allies")
+                        ChangeTeam(player, "axis");
+                    else
+                        continue;
+                    Utilities.RawSayAll($"^1{player.Name} ^7has been ^2balanced^7.");
+                }
             }
         }
 
