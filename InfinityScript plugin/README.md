@@ -24,9 +24,6 @@ seta sv_gmotd "^1Welcome to the server. Edit me."
 //Force users to have smoke. Does not allow users to remove smoke in game. 1 to enable, 0 to disable.
 seta sv_forceSmoke "1"
 
-//Force users demo recording. Automatically enables user demo recording. 1 to enable, 0 to disable.
-seta sv_forceDemoRecording "1"
-
 //Ojective text in menu. Objective text shown in the menu, edit to your liking.
 seta sv_objText "^1Welcome to the server. Edit me."
 
@@ -60,11 +57,8 @@ seta sv_scrollingHud "1"
 //Scrolling Speed of Bottom Hud. Default value: 30
 seta sv_scrollingSpeed "30"
 
-//Demo Quality enhancing. Enhance the Demo Quality and increase rate of demo information with precision. 1 to enable, 0 to disable.
-seta sv_demoQuality "1"
-
-//b3 Latency. 1000 = default value, Value must be higher than 1000 for proper experience. for slow connection to b3, put higher value.
-seta sv_b3latency "1000"
+//Enable clients alias in chat. Default: 1, Eanble: 1, Disable: 0
+seta sv_chatAlias "1"
 
 ///////////////////////////////////////////
 ```
@@ -84,12 +78,48 @@ v2.0.0.x
 - Bug fixes from v1.
 - Commands
   1. !afk
-  2. !setafk
-  3. !teleport
-  4. !mode
-  5. !gametype
-  6. !kill
+  2. !setafk (playername)
+  3. !teleport (teleporter) (reciever)
+  4. !mode (dsr name)
+  5. !gametype (dsr name) (map name)(Unformatted)
+  6. !kill (playername)
   7. !suicide
+ 
+v2.0.0.2
+- Changed latency to 1200ms from 1000ms to have commands execute everytime.
+- Fixed OnSay2 Bug and Errors.
+- Added check for player rank before execution of command and prevent execution on higher rank.
+- Using Entref instead of Name of entity sent by b3 to InfinityScript.
+- Fixed issue in execution of 2 arguments commands due to player name having spaces.
+- Player finding function changed for InfinityScript. Now based on Entity Number.
+- Commands added:
+  1. !blockchat (playername) [Toggle command]*
+  2. !ac130 (playername) || all
+  3. !freeze (playername) [Toggle command]*
+  4. !changeteam (playername)
+  
+v2.0.0.3
+- Instead of using latency, the IS will check for executed b3 command on interval of 50ms.
+- Demo recording issue has been removed.
+- rate increased from 60000 (6kbps upload) to 210000 (21kbps upload).
+- Freeze command fixed where user would get unfreezed after respawning causing script execution issue.
+
+v2.0.0.4
+- OnSay2 has been changed to OnSay3 so clients still can team message even if they are using alias (custom name)
+- Clients alias will be stored in 'scripts\ClientsAlias.txt', format of stored data is '[Player HWID]=[Player Alias]'
+- Commands added:
+  1. !wallhack (playername) || all [Enabled / Disable]*
+  2. !aimbot (playername) || all [Enabled / Disable]*
+  3. !norecoil (playername) || all [Enabled / Disable]*
+  4. !godmode (playername) || all [Enabled / Disable]*
+  5. !invisible (playername) || all [Enabled / Disable]*
+  6. !unlimiteammo (playername) || all [Enabled / Disable]*
+  7. !fly (playername)
+  8. !setalias (playername) (alias)
+  9. !balance
+  
+*Toggle command = Enables on first execution and same command is used for disabling.
+*Enabled / Disable = specified value to set command status, can be (1, on, true, enable)
 
 ## Contributing to the project
 
@@ -97,5 +127,5 @@ You can contribute to this project, feel free to fork the project and push your 
 
 ## Contact
 
-You can contact me and get more information about this plugin on Discord [HERE](https://discord.gg/HFTXzTw). 
-Discord: Musta#6382
+You can contact us and get more information about this plugin on Discord [HERE](https://discord.gg/3UvVjaC). 
+Discord: Musta#6382 & SunRise#3428

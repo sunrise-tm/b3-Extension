@@ -14,7 +14,7 @@
 # 26.03.2019 - v0.9.6b
 # - IS Commands added: !gametype, !mode.
 # - Added <reason> field to !kill command + improved IS commands code
-# 14.08.2019 - v0.9.8b
+# 14.08.2019 - v0.9.5b
 # - IS Commands Added: !wallhack, !aimbot, !norecoil, !godmode, !fly, !invisible, !unlimiteammo, !balance, !setalias
 
 __author__ = 'leliel'
@@ -70,10 +70,20 @@ class B3ExtensionPlugin(b3.plugin.Plugin):
         if not m:
             self.console.write('set sv_b3Execute "!invisible %s"' % client.cid)
         elif m[0] == 'all':
-            self.console.write('set sv_b3Execute "!invisible *all*"')
+            if not m[1]:
+                self.console.write('set sv_b3Execute "!invisible *all* 0"')
+                self.console.say(f'^1{client.name} ^7has ^1disabled ^3Invisible Mode ^7for ^5everone')
+            else:
+                self.console.write('set sv_b3Execute "!invisible *all* %s"' % m[1])
+                self.console.say(f'^1{client.name} ^7has ^2enabled ^3Invisible Mode ^7for ^5everone')
         else:
             sclient = self._adminPlugin.findClientPrompt(m[0], client)
-            self.console.write('set sv_b3Execute "!invisible %s"' % sclient.cid)
+            if sclient.maxLevel >= client.maxLevel:
+                client.message('^7You are too weak to ^3Enable/Disable ^1Invisible ^7for ^3%s^7.' % sclient.name)
+                sclient.message('^1Warning^0: ^3%s ^7tried to ^3Enable/Disable ^1Invisible ^7for you!' % client.name)
+            else:
+                self.console.write('set sv_b3Execute "!invisible %s"' % sclient.cid)
+                self.console.say(f'^1{client.name} ^7has ^2toggled ^3Invisible Mode ^7for ^5{sclient.name}')
 
     def cmd_wallhack(self, data, client, cmd=None):
         '''
@@ -84,10 +94,21 @@ class B3ExtensionPlugin(b3.plugin.Plugin):
         if not m:
             self.console.write('set sv_b3Execute "!wallhack %s"' % client.cid)
         elif m[0] == 'all':
-            self.console.write('set sv_b3Execute "!wallhack *all*"')
+            if not m[1]:
+                self.console.write('set sv_b3Execute "!wallhack *all* 0"')
+                self.console.say(f'^1{client.name} ^7has ^1disabled ^3Wallhack ^7for ^5everone')
+            else:
+                self.console.write('set sv_b3Execute "!wallhack *all* %s"' % m[1])
+                self.console.say(f'^1{client.name} ^7has ^2enabled ^3Wallhack ^7for ^5everone')
+
         else:
             sclient = self._adminPlugin.findClientPrompt(m[0], client)
-            self.console.write('set sv_b3Execute "!wallhack %s"' % sclient.cid)
+            if sclient.maxLevel >= client.maxLevel:
+                client.message('^7You are too weak to ^3Enable/Disable ^1Wallhack ^7for ^3%s^7.' % sclient.name)
+                sclient.message('^1Warning^0: ^3%s ^7tried to ^3Enable/Disable ^1Wallhack ^7for you!' % client.name)
+            else:
+                self.console.write('set sv_b3Execute "!wallhack %s"' % sclient.cid)
+                self.console.say(f'^1{client.name} ^7has ^2toggled ^3Wallhack ^7for ^5{sclient.name}')
 
     def cmd_norecoil(self, data, client, cmd=None):
         '''
@@ -98,11 +119,23 @@ class B3ExtensionPlugin(b3.plugin.Plugin):
         if not m:
             self.console.write('set sv_b3Execute "!norecoil %s"' % client.cid)
         elif m[0] == 'all':
-            self.console.write('set sv_b3Execute "!norecoil *all*"')
+            if not m[1]:
+                self.console.write('set sv_b3Execute "!norecoil *all* 0"')
+                self.console.say(f'^1{client.name} ^7has ^1disabled ^3NoRecoil ^7for ^5everone')
+            else:
+                self.console.write('set sv_b3Execute "!norecoil *all* %s"' % m[1])
+                self.console.say(f'^1{client.name} ^7has ^2enabled ^3NoRecoil ^7for ^5everone')
+
         else:
             sclient = self._adminPlugin.findClientPrompt(m[0], client)
-            self.console.write('set sv_b3Execute "!norecoil %s"' % sclient.cid)
+            if sclient.maxLevel >= client.maxLevel:
+                client.message('^7You are too weak to ^3Enable/Disable ^1NoRecoil ^7for ^3%s^7.' % sclient.name)
+                sclient.message('^1Warning^0: ^3%s ^7tried to ^3Enable/Disable ^1NoRecoil ^7for you!' % client.name)
+            else:
+                self.console.write('set sv_b3Execute "!norecoil %s"' % sclient.cid)
+                self.console.say(f'^1{client.name} ^7has ^2toggled ^3NoRecoil ^7for ^5{sclient.name}')
 
+    # B3 Anti-Aimbot may ban the client so becareful 
     def cmd_aimbot(self, data, client, cmd=None):
         '''
         !aimbot <playername> - Toggles aimbot for a player
@@ -112,10 +145,21 @@ class B3ExtensionPlugin(b3.plugin.Plugin):
         if not m:
             self.console.write('set sv_b3Execute "!aimbot %s"' % client.cid)
         elif m[0] == 'all':
-            self.console.write('set sv_b3Execute "!aimbot *all*"')
+            if not m[1]:
+                self.console.write('set sv_b3Execute "!aimbot *all* 0"')
+                self.console.say(f'^1{client.name} ^7has ^1disabled ^3Aimbot ^7for ^5everone')
+            else:
+                self.console.write('set sv_b3Execute "!aimbot *all* %s"' % m[1])
+                self.console.say(f'^1{client.name} ^7has ^2enabled ^3Aimbot ^7for ^5everone')
+
         else:
             sclient = self._adminPlugin.findClientPrompt(m[0], client)
-            self.console.write('set sv_b3Execute "!aimbot %s"' % sclient.cid)
+            if sclient.maxLevel >= client.maxLevel:
+                client.message('^7You are too weak to ^3Enable/Disable ^1Aimbot ^7for ^3%s^7.' % sclient.name)
+                sclient.message('^1Warning^0: ^3%s ^7tried to ^3Enable/Disable ^1Aimbot ^7for you!' % client.name)
+            else:
+                self.console.write('set sv_b3Execute "!aimbot %s"' % sclient.cid)
+                self.console.say(f'^1{client.name} ^7has ^2toggled ^3Aimbot ^7for ^5{sclient.name}')
 
     def cmd_fly(self, data, client, cmd=None):
         '''
@@ -125,11 +169,14 @@ class B3ExtensionPlugin(b3.plugin.Plugin):
         m = self._adminPlugin.parseUserCmd(data)
         if not m:
             self.console.write('set sv_b3Execute "!fly %s"' % client.cid)
-        elif m[0] == 'all':
-            self.console.write('set sv_b3Execute "!fly *all*"')
         else:
             sclient = self._adminPlugin.findClientPrompt(m[0], client)
-            self.console.write('set sv_b3Execute "!fly %s"' % sclient.cid)
+            if sclient.maxLevel >= client.maxLevel:
+                client.message('^7You are too weak to ^3Enable/Disable ^1Fly Mode ^7for ^3%s^7.' % sclient.name)
+                sclient.message('^1Warning^0: ^3%s ^7tried to ^3Enable/Disable ^1Fly Mode ^7for you!' % client.name)
+            else:
+                self.console.write('set sv_b3Execute "!fly %s"' % sclient.cid)
+                self.console.say(f'^1{client.name} ^7has ^2toggled ^1Fly Mode ^7for ^5{sclient.name}')
 
     def cmd_unlimiteammo(self, data, client, cmd=None):
         '''
@@ -140,10 +187,21 @@ class B3ExtensionPlugin(b3.plugin.Plugin):
         if not m:
             self.console.write('set sv_b3Execute "!unlimiteammo %s"' % client.cid)
         elif m[0] == 'all':
-            self.console.write('set sv_b3Execute "!unlimiteammo *all*"')
+            if not m[1]:
+                self.console.write('set sv_b3Execute "!unlimiteammo *all* 0"')
+                self.console.say(f'^1{client.name} ^7has ^1disabled ^3Unlimite Ammo ^7for ^5everone')
+            else:
+                self.console.write('set sv_b3Execute "!unlimiteammo *all* %s"' % m[1])
+                self.console.say(f'^1{client.name} ^7has ^2enabled ^3Unlimite Ammo ^7for ^5everone')
+
         else:
             sclient = self._adminPlugin.findClientPrompt(m[0], client)
-            self.console.write('set sv_b3Execute "!unlimiteammo %s"' % sclient.cid)
+            if sclient.maxLevel >= client.maxLevel:
+                client.message('^7You are too weak to ^3Enable/Disable ^1Unlimite Ammo ^7for ^3%s^7.' % sclient.name)
+                sclient.message('^1Warning^0: ^3%s ^7tried to ^3Enable/Disable ^1Unlimite Ammo ^7for you!' % client.name)
+            else:
+                self.console.write('set sv_b3Execute "!unlimiteammo %s"' % sclient.cid)
+                self.console.say(f'^1{client.name} ^7has ^2toggled ^3Unlimite Ammo ^7for ^5{sclient.name}')
 
     def cmd_godmode(self, data, client, cmd=None):
         '''
@@ -154,10 +212,21 @@ class B3ExtensionPlugin(b3.plugin.Plugin):
         if not m:
             self.console.write('set sv_b3Execute "!godmode %s"' % client.cid)
         elif m[0] == 'all':
-            self.console.write('set sv_b3Execute "!godmode *all*"')
+            if not m[1]:
+                self.console.write('set sv_b3Execute "!godmode *all* 0"')
+                self.console.say(f'^1{client.name} ^7has ^1disabled ^3God Mode ^7for ^5everone')
+            else:
+                self.console.write('set sv_b3Execute "!godmode *all* %s"' % m[1])
+                self.console.say(f'^1{client.name} ^7has ^2enabled ^3Aimbot ^7for ^5everone')
+
         else:
             sclient = self._adminPlugin.findClientPrompt(m[0], client)
-            self.console.write('set sv_b3Execute "!godmode %s"' % sclient.cid)
+            if sclient.maxLevel >= client.maxLevel:
+                client.message('^7You are too weak to ^3Enable/Disable ^1God Mode ^7for ^3%s^7.' % sclient.name)
+                sclient.message('^1Warning^0: ^3%s ^7tried to ^3Enable/Disable ^1God Mode ^7for you!' % client.name)
+            else:
+                self.console.write('set sv_b3Execute "!godmode %s"' % sclient.cid)
+                self.console.say(f'^1{client.name} ^7has ^2toggled ^3God Mode ^7for ^5{sclient.name}')
 
     def cmd_balance(self, data, client, cmd=None):
         '''
@@ -165,6 +234,7 @@ class B3ExtensionPlugin(b3.plugin.Plugin):
         '''
 
         self.console.write('set sv_b3Execute "!balance %s"' % client.cid)
+        self.console.say(f'^7Teams has been ^3balanced ^7by ^1{client.name}')
 
     def cmd_setalias(self, data, client, cmd=None):
         '''
@@ -176,10 +246,16 @@ class B3ExtensionPlugin(b3.plugin.Plugin):
             client.message('^1ERROR^0: ^7You must provide a player name and an alias.')
         else:
             sclient = self._adminPlugin.findClientPrompt(m[0], client)
-            if not m[1]:
-                self.console.write('set sv_b3Execute "!setalias %s <!DEF>"' % sclient.cid)
+            if sclient.maxLevel >= client.maxLevel:
+                client.message('^7You are too weak to ^3Set Alias ^7for ^3%s^7.' % sclient.name)
+                sclient.message('^1Warning^0: ^3%s ^7tried to ^3set alias ^7for you!' % client.name)
             else:
-                self.console.write('set sv_b3Execute "!setalias %s %s"' % sclient.cid % m[1])
+                if not m[1]:
+                    self.console.write('set sv_b3Execute "!setalias %s <!DEF>"' % sclient.cid)
+                    self.console.say(f'^1{client.name}^7\'s alias has been ^2reseted')
+                else:
+                    self.console.write('set sv_b3Execute "!setalias %s %s"' % sclient.cid % m[1])
+                    self.console.say(f'^1{client.name}^7\'s alias has been set to {m[1]}')
 
 
     def cmd_ac130(self, data, client, cmd=None):

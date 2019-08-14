@@ -104,19 +104,22 @@ v2.0.0.3
 - rate increased from 60000 (6kbps upload) to 210000 (21kbps upload).
 - Freeze command fixed where user would get unfreezed after respawning causing script execution issue.
 
-v2.0.0.5
+v2.0.0.4
+- OnSay2 has been changed to OnSay3 so clients still can team message even if they are using alias (custom name)
+- Clients alias will be stored in 'scripts\ClientsAlias.txt', format of stored data is '[Player HWID]=[Player Alias]'
 - Commands added:
-  1. !wallhack (playername) || all
-  2. !aimbot (playername) || all
-  3. !norecoil (playername) || all
-  4. !godmode (playername) || all
-  5. !invisible (playername) || all
-  6. !unlimiteammo (playername) || all
+  1. !wallhack (playername) || all [Enabled / Disable]*
+  2. !aimbot (playername) || all [Enabled / Disable]*
+  3. !norecoil (playername) || all [Enabled / Disable]*
+  4. !godmode (playername) || all [Enabled / Disable]*
+  5. !invisible (playername) || all [Enabled / Disable]*
+  6. !unlimiteammo (playername) || all [Enabled / Disable]*
   7. !fly (playername)
   8. !setalias (playername) (alias)
   9. !balance
   
 *Toggle command = Enables on first execution and same command is used for disabling.
+*Enabled / Disable = specified value to set command status, can be (1, on, true, enable)
 
 ## Contributing to the project
 
@@ -124,5 +127,5 @@ You can contribute to this project, feel free to fork the project and push your 
 
 ## Contact
 
-You can contact us and get more information about this plugin on Discord [HERE](https://discord.gg/HFTXzTw). 
+You can contact us and get more information about this plugin on Discord [HERE](https://discord.gg/3UvVjaC). 
 Discord: Musta#6382 & SunRise#3428

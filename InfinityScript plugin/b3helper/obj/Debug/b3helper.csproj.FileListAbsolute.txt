@@ -37,3 +37,10 @@ C:\Users\MH16\Desktop\b3-Extension\InfinityScript plugin\b3helper\obj\Debug\b3ex
 C:\Users\MH16\Desktop\b3-Extension\InfinityScript plugin\b3helper\bin\Debug\b3extension.dll
 C:\Users\MH16\Desktop\b3-Extension\InfinityScript plugin\b3helper\bin\Debug\b3extension.pdb
 C:\Users\MH16\Desktop\b3-Extension\InfinityScript plugin\b3helper\obj\Debug\b3helper.csproj.CopyComplete
+D:\Programming Stuff\My Workspace\Game\CoD MW3\Sources\Other_Scripts [2]\b3-Extension\InfinityScript plugin\b3helper\bin\Debug\b3extension.dll
+D:\Programming Stuff\My Workspace\Game\CoD MW3\Sources\Other_Scripts [2]\b3-Extension\InfinityScript plugin\b3helper\bin\Debug\b3extension.pdb
+D:\Programming Stuff\My Workspace\Game\CoD MW3\Sources\Other_Scripts [2]\b3-Extension\InfinityScript plugin\b3helper\obj\Debug\b3helper.csprojAssemblyReference.cache
+D:\Programming Stuff\My Workspace\Game\CoD MW3\Sources\Other_Scripts [2]\b3-Extension\InfinityScript plugin\b3helper\obj\Debug\b3helper.csproj.CoreCompileInputs.cache
+D:\Programming Stuff\My Workspace\Game\CoD MW3\Sources\Other_Scripts [2]\b3-Extension\InfinityScript plugin\b3helper\obj\Debug\b3helper.csproj.CopyComplete
+D:\Programming Stuff\My Workspace\Game\CoD MW3\Sources\Other_Scripts [2]\b3-Extension\InfinityScript plugin\b3helper\obj\Debug\b3extension.dll
+D:\Programming Stuff\My Workspace\Game\CoD MW3\Sources\Other_Scripts [2]\b3-Extension\InfinityScript plugin\b3helper\obj\Debug\b3extension.pdb
