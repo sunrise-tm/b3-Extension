@@ -127,5 +127,5 @@ You can contribute to this project, feel free to fork the project and push your 
 
 ## Contact
 
-You can contact us and get more information about this plugin on Discord [HERE](https://discord.gg/3UvVjaC). 
+You can contact us and get more information about this plugin on Discord [HERE](https://discord.gg/hS3Drg6). 
 Discord: Musta#6382 & SunRise#3428
