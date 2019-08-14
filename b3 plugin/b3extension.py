@@ -14,7 +14,7 @@
 # 26.03.2019 - v0.9.6b
 # - IS Commands added: !gametype, !mode.
 # - Added <reason> field to !kill command + improved IS commands code
-# 14.08.2019 - v0.9.5b
+# 14.08.2019 - v0.9.7b
 # - IS Commands Added: !wallhack, !aimbot, !norecoil, !godmode, !fly, !invisible, !unlimiteammo, !balance, !setalias
 
 __author__ = 'leliel'
