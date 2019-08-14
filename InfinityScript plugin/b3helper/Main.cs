@@ -72,10 +72,16 @@ namespace b3helper
                     ProcessCommand(content);
                     Call("setDvar", "sv_b3Execute", "null");
                 }
+                return true;
+            });
+
+            OnInterval(1, () =>
+            {
                 if (Players.Count > 0)
                 {
                     foreach (var entity in Players)
                     {
+                        if (entity == null || entity.IsAlive) continue;
                         if (entity.HasField("PlayerUsingNorecoil") && entity.GetField<int>("PlayerUsingNorecoil") == 1)
                             entity.Call("recoilscaleon", 0);
                         if (entity.HasField("PlayerUsingWallhack") && entity.GetField<int>("PlayerUsingWallhack") == 1)
@@ -198,8 +204,6 @@ namespace b3helper
                         player.Call("freezecontrols", true);
                     }
                 }
-                if (player.HasField("PlayerIsInvisible") && player.GetField<int>("PlayerIsInvisible") == 1)
-                    player.Call("hide");
             };
             player.OnNotify("giveloadout", delegate (Entity entity)
             {
@@ -493,8 +497,7 @@ namespace b3helper
                 if (msg[0].StartsWith("!fly"))
                 {
                     Entity player = GetPlayer(msg[1]);
-                    int status = player.GetField<int>("PlayerIsFlying");
-                    if (status == 0)
+                    if (player.GetField<int>("PlayerIsFlying") == 0)
                     {
                         player.SetField("PlayerIsFlying", 1);
                         player.Call("allowspectateteam", "freelook", true);
@@ -516,24 +519,33 @@ namespace b3helper
                     if (msg[1] != "*all*")
                     {
                         Entity player = GetPlayer(msg[1]);
-                        int status = player.GetField<int>("PlayerIsInvisible");
-                        player.SetField("PlayerIsInvisible", status == 1 ? 0 : 1);
                         //Utilities.RawSayAll($"^1{player.Name} ^7is now {(status == 1 ? "^1invisible" : "^2visible")} ^7to others.");
-                        if (status == 1)
-                            player.Call("show");
-                        else
+                        if (player.GetField<int>("PlayerIsInvisible") == 0)
+                        {
+                            player.SetField("PlayerIsInvisible", 1);
                             player.Call("hide");
+                        }
+                        else
+                        {
+                            player.SetField("PlayerIsInvisible", 0);
+                            player.Call("show");
+                        }
                     }
                     else
                     {
                         bool status = BooleanFromString(msg[2]);
                         foreach (var player in Players)
                         {
-                            player.SetField("PlayerIsInvisible", status);
                             if (status)
-                                player.Call("show");
-                            else
+                            {
+                                player.SetField("PlayerIsInvisible", 1);
                                 player.Call("hide");
+                            }
+                            else
+                            {
+                                player.SetField("PlayerIsInvisible", 0);
+                                player.Call("show");
+                            }
                         }
                         //Utilities.RawSayAll($"^1everyone ^7are now {(status ? "^1invisible" : "^2visible")}");
                     }
@@ -543,15 +555,22 @@ namespace b3helper
                     if (msg[1] != "*all*")
                     {
                         Entity player = GetPlayer(msg[1]);
-                        int status = player.GetField<int>("PlayerHasUnlimiteAmmo");
-                        player.SetField("PlayerHasUnlimiteAmmo", status == 1 ? 0 : 1);
+                        if (player.GetField<int>("PlayerHasUnlimiteAmmo") == 0)
+                            player.SetField("PlayerHasUnlimiteAmmo", 1);
+                        else
+                            player.SetField("PlayerHasUnlimiteAmmo", 0);
                         //Utilities.RawSayAll($"^3Unlimite Ammo ^7has been {(status == 1 ? "^1disabled" : "^2enabled")} ^7for ^1{player.Name}");
                     }
                     else
                     {
                         bool status = BooleanFromString(msg[2]);
                         foreach (var player in Players)
-                            player.SetField("PlayerHasUnlimiteAmmo", status);
+                        {
+                            if (status)
+                                player.SetField("PlayerHasUnlimiteAmmo", 1);
+                            else
+                                player.SetField("PlayerHasUnlimiteAmmo", 0);
+                        }
                         //Utilities.RawSayAll($"^3Unlimite Ammo ^7has been {(status ? "^1disabled" : "^2enabled")} ^7for ^3everyone");
                     }
                 }
@@ -560,15 +579,22 @@ namespace b3helper
                     if (msg[1] != "*all*")
                     {
                         Entity player = GetPlayer(msg[1]);
-                        int status = player.GetField<int>("PlayerUsingNorecoil");
-                        player.SetField("PlayerUsingNorecoil", status == 1 ? 0 : 1);
                         //Utilities.RawSayAll($"^3NoRecoil ^7has been {(status == 1 ? "^1disabled" : "^2enabled")} ^7for ^1{player.Name}");
+                        if (player.GetField<int>("PlayerUsingNorecoil") == 0)
+                            player.SetField("PlayerUsingNorecoil", 1);
+                        else
+                            player.SetField("PlayerUsingNorecoil", 0);
                     }
                     else
                     {
                         bool status = BooleanFromString(msg[2]);
                         foreach (var player in Players)
-                            player.SetField("PlayerUsingNorecoil", status);
+                        {
+                            if (status)
+                                player.SetField("PlayerUsingNorecoil", 1);
+                            else
+                                player.SetField("PlayerUsingNorecoil", 0);
+                        }
                         //Utilities.RawSayAll($"^3NoRecoil ^7has been {(status ? "^1disabled" : "^2enabled")} ^7for ^3everyone");
                     }
                 }
@@ -577,24 +603,33 @@ namespace b3helper
                     if (msg[1] != "*all*")
                     {
                         Entity player = GetPlayer(msg[1]);
-                        int status = player.GetField<int>("PlayerUsingWallhack");
-                        player.SetField("PlayerUsingWallhack", status == 1 ? 0 : 1);
                         //Utilities.RawSayAll($"^3Wallhack ^7has been {(status == 1 ? "^1disabled" : "^2enabled")} ^7for ^1{player.Name}");
-                        if (status == 1)
-                            player.Call("thermalvisionfofoverlayoff", true);
-                        else
+                        if (player.GetField<int>("PlayerUsingWallhack") == 0)
+                        {
+                            player.SetField("PlayerUsingNorecoil", 1);
                             player.Call("thermalvisionfofoverlayon", true);
+                        }
+                        else
+                        {
+                            player.SetField("PlayerUsingNorecoil", 0);
+                            player.Call("thermalvisionfofoverlayoff", true);
+                        }                           
                     }
                     else
                     {
                         bool status = BooleanFromString(msg[2]);
                         foreach (var player in Players)
                         {
-                            player.SetField("PlayerUsingAimbot", status);
                             if (status)
-                                player.Call("thermalvisionfofoverlayoff", true);
-                            else
+                            {
+                                player.SetField("PlayerUsingNorecoil", 1);
                                 player.Call("thermalvisionfofoverlayon", true);
+                            }
+                            else
+                            {
+                                player.SetField("PlayerUsingNorecoil", 0);
+                                player.Call("thermalvisionfofoverlayoff", true);
+                            }
                         }
                         //Utilities.RawSayAll($"^3Wallhack ^7has been {(status ? "^1disabled" : "^2enabled")} ^7for ^3everyone");
                     }
@@ -605,16 +640,24 @@ namespace b3helper
                     if (msg[1] != "*all*")
                     {
                         Entity player = GetPlayer(msg[1]);
-                        int status = player.GetField<int>("PlayerUsingAimbot");
-                        player.SetField("PlayerUsingAimbot", status == 1 ? 0 : 1);
                         //Utilities.RawSayAll($"^3Aimbot ^7has been {(status == 1 ? "^1disabled" : "^2enabled")} ^7for ^1{player.Name}");
+                        if (player.GetField<int>("PlayerUsingAimbot") == 0)
+                            player.SetField("PlayerUsingAimbot", 1);
+                        else
+                            player.SetField("PlayerUsingAimbot", 0);
                     }
                     else
                     {
                         bool status = BooleanFromString(msg[2]);
                         foreach (var player in Players)
-                            player.SetField("PlayerUsingAimbot", status);
+                        {
+                            if (status)
+                                player.SetField("PlayerUsingAimbot", 1);
+                            else
+                                player.SetField("PlayerUsingAimbot", 0);
+                        }
                         //Utilities.RawSayAll($"^3Aimbot ^7has been {(status ? "^1disabled" : "^2enabled")} ^7for ^3everyone");
+
                     }
                 }
                 if (msg[0].StartsWith("!godmode"))
@@ -622,15 +665,22 @@ namespace b3helper
                     if (msg[1] != "*all*")
                     {
                         Entity player = GetPlayer(msg[1]);
-                        int status = player.GetField<int>("PlayerHasUnlimiteHealth");
-                        player.SetField("PlayerHasUnlimiteHealth", status == 1 ? 0 : 1);
                         //Utilities.RawSayAll($"^3God Mode ^7has been {(status == 1 ? "^1disabled" : "^2enabled")} ^7for ^1{player.Name}");
+                        if (player.GetField<int>("PlayerHasUnlimiteHealth") == 0)
+                            player.SetField("PlayerHasUnlimiteHealth", 1);
+                        else
+                            player.SetField("PlayerHasUnlimiteHealth", 0);
                     }
                     else
                     {
                         bool status = BooleanFromString(msg[2]);
                         foreach (var player in Players)
-                            player.SetField("PlayerHasUnlimiteHealth", status);
+                        {
+                            if (status)
+                                player.SetField("PlayerHasUnlimiteHealth", 1);
+                            else
+                                player.SetField("PlayerHasUnlimiteHealth", 0);
+                        }
                         //Utilities.RawSayAll($"^3God Mode ^7has been {(status ? "^1disabled" : "^2enabled")} ^7for ^3everyone");
                     }
                 }
@@ -726,8 +776,7 @@ namespace b3helper
 
                     case "axis":
                         axis.Add(client);
-                        break
-                            ;
+                        break;
                     default:
                         //nothing
                         break;
@@ -754,7 +803,7 @@ namespace b3helper
                         ChangeTeam(player, "axis");
                     else
                         continue;
-                    Utilities.RawSayAll($"^1{player.Name} ^7has been ^2balanced^7.");
+                    //Utilities.RawSayAll($"^1{player.Name} ^7has been ^2balanced^7.");
                 }
             }
         }
